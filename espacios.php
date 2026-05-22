@@ -3,7 +3,12 @@ error_reporting(0);
 ini_set('display_errors', 0);
 header("Content-Type: application/json");
 
-$conexion = new mysqli("localhost", "root", "", "eficientparkinglot");
+include "conexion.php";
+include "auth.php";
+
+$user = requireAuth();
+
+$conexion = $conn;
 
 if ($conexion->connect_error) {
     echo json_encode([

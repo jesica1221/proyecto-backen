@@ -1,7 +1,9 @@
-<<?php
+<?php
 header("Content-Type: application/json");
 include "conexion.php";
+include "auth.php";
 
+$user = requireAuth(["admin", "seguridad"]);
 $data = json_decode(file_get_contents("php://input"), true);
 
 $idEspacio = $data['idEspacio'] ?? null;

@@ -3,6 +3,9 @@ error_reporting(0);
 ini_set('display_errors', 0);
 header("Content-Type: application/json");
 include "conexion.php";
+include "auth.php";
+
+$user = requireAuth();
 
 $data = json_decode(file_get_contents("php://input"), true);
 $cedula = $data['cedula'] ?? null;

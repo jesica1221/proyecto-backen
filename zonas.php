@@ -1,6 +1,9 @@
 <?php
 header("Content-Type: application/json");
 include "conexion.php";
+include "auth.php";
+
+$user = requireAuth();
 
 $sql = "SELECT * FROM zonas";
 $result = $conn->query($sql);

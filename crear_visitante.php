@@ -2,7 +2,9 @@
 
 header("Content-Type: application/json");
 include "conexion.php";
+include "auth.php";
 
+$user = requireAuth(["admin", "seguridad"]);
 $data = json_decode(file_get_contents("php://input"), true);
 
 $placa = strtoupper(trim($data["placa"] ?? ""));
@@ -17,7 +19,7 @@ INSERT INTO usuarios
 VALUES (?, ?, ?, 'visitante')
 ";
 
-$stmt = $conexion->prepare($sql);
+$stmt = $conn->prepare($sql);
 
 $stmt->bind_param(
     "sss",

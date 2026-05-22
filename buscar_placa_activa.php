@@ -2,7 +2,9 @@
 
 header("Content-Type: application/json");
 include "conexion.php";
+include "auth.php";
 
+$user = requireAuth(["admin", "seguridad"]);
 $data = json_decode(file_get_contents("php://input"), true);
 
 $placa = strtoupper(trim($data["placa"] ?? ""));
@@ -22,7 +24,7 @@ AND e.estado IN ('ocupado', 'por vencer')
 LIMIT 1
 ";
 
-$stmt = $conexion->prepare($sql);
+$stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $placa);
 $stmt->execute();
 
