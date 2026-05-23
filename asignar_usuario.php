@@ -22,6 +22,43 @@ if (!$usuarioId || !$espacioId) {
 }
 
 /* =========================
+   OBTENER EL USUARIO POR ID
+========================= */
+$sqlUsuario = "SELECT * FROM usuarios WHERE id = ? LIMIT 1";
+$stmtUsuario = $conn->prepare($sqlUsuario);
+$stmtUsuario->bind_param("i", $usuarioId);
+$stmtUsuario->execute();
+$resultUsuario = $stmtUsuario->get_result();
+
+if ($resultUsuario->num_rows <= 0) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Usuario no encontrado"
+    ]);
+    exit;
+}
+
+$usuario = $resultUsuario->fetch_assoc();
+
+/* =========================
+   VERIFICAR SI EL USUARIO YA TIENE UN PARQUEADERO
+========================= */
+$sqlVerificarReserva = "
+SELECT * FROM espacios WHERE cedula = ? AND estado = 'ocupado' AND tiempoLimite > NOW() LIMIT 1";
+$stmtVerificar = $conn->prepare($sqlVerificarReserva);
+$stmtVerificar->bind_param("s", $usuario["cedula"]);
+$stmtVerificar->execute();
+$resultVerificar = $stmtVerificar->get_result();
+
+if ($resultVerificar->num_rows > 0) {
+    echo json_encode([
+        "success" => false,
+        "message" => "El usuario ya tiene un parqueadero asignado"
+    ]);
+    exit;
+}
+
+/* =========================
    VERIFICAR SI EL ESPACIO EXISTE
 ========================= */
 
@@ -79,7 +116,7 @@ WHERE id = ?
 ";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("sii", $espacio["cedula"], $usuarioId, $espacioId);
+$stmt->bind_param("si", $usuario["cedula"], $espacioId);
 
 if ($stmt->execute()) {
 

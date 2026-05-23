@@ -1,6 +1,9 @@
 <?php
 header("Content-Type: application/json");
 include "conexion.php";
+include "auth.php";
+
+$user = requireAuth();
 
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -9,6 +12,16 @@ $cedula = $data['cedula'] ?? null;
 
 if (!$idEspacio || !$cedula) {
     echo json_encode(["success" => false, "message" => "Datos incompletos"]);
+    exit;
+}
+
+// 🔥 OBTENER EL ESPACIO PRIMERO PARA SABER LA ZONA Y NUMERO
+$sqlEspacio = "SELECT * FROM espacios WHERE id = '$idEspacio' LIMIT 1";
+$resultEspacio = $conn->query($sqlEspacio);
+$espacio = $resultEspacio->fetch_assoc();
+
+if (!$espacio) {
+    echo json_encode(["success" => false, "message" => "Espacio no encontrado"]);
     exit;
 }
 
@@ -30,7 +43,9 @@ if ($conn->query($sql)) {
 
     echo json_encode([
         "success" => true,
-        "remaining_seconds" => $tiempoLimite->getTimestamp() - $horaInicio->getTimestamp()
+        "horaVencimiento" => $tiempoLimite->format('c'),
+        "numero" => $espacio['numero'],
+        "zona" => $espacio['zonaId']
     ]);
 
 } else {

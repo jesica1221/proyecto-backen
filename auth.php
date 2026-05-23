@@ -12,25 +12,36 @@ if (!session_id()) {
 }
 
 /**
- * Obtener el token desde Authorization Bearer o request params.
+ * Obtener el token desde Authorization Bearer o request params o JSON body.
  */
 function getRequestToken(): ?string
 {
-    // Authorization: Bearer TOKEN
+    // 1. Authorization: Bearer TOKEN
     if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
         if (preg_match('/Bearer\s+(.*)$/i', trim($_SERVER['HTTP_AUTHORIZATION']), $matches)) {
             return trim($matches[1]);
         }
     }
 
+    // 2. REDIRECT_HTTP_AUTHORIZATION
     if (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
         if (preg_match('/Bearer\s+(.*)$/i', trim($_SERVER['REDIRECT_HTTP_AUTHORIZATION']), $matches)) {
             return trim($matches[1]);
         }
     }
 
+    // 3. $_REQUEST['token'] (GET/POST params)
     if (isset($_REQUEST['token']) && trim($_REQUEST['token']) !== '') {
         return trim($_REQUEST['token']);
+    }
+
+    // 4. JSON body
+    $jsonInput = file_get_contents("php://input");
+    if ($jsonInput) {
+        $data = json_decode($jsonInput, true);
+        if (isset($data['token']) && trim($data['token']) !== '') {
+            return trim($data['token']);
+        }
     }
 
     return null;

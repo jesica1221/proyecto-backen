@@ -19,17 +19,20 @@ if (!$cedula) {
 $sql = "SELECT * FROM espacios 
         WHERE cedula = '$cedula'
         AND estado = 'ocupado'
-        AND tiempoLimite > DATE_SUB(NOW(), INTERVAL 6 HOUR)
+        AND tiempoLimite > NOW()
         LIMIT 1";
 
 $result = $conn->query($sql);
 
 $reserva = null;
 
-while ($row = $result->fetch_assoc()) {
-    $reserva = $row;
-    // Calcular tiempo restante en base a la hora del servidor
-    $reserva['remaining_seconds'] = strtotime($row['tiempoLimite']) - time();
+if ($result && $result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $reserva = [
+        'numero' => $row['numero'],
+        'zona' => $row['zonaId'],
+        'horaVencimiento' => (new DateTime($row['tiempoLimite'], new DateTimeZone("America/Bogota")))->format('c'),
+    ];
 }
 
 // 🔥 RESPUESTA
