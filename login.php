@@ -25,20 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 /* =========================
    Conexión a la base de datos
 ========================= */
-$servername = "localhost";
-$username   = "root";
-$passwordDB = "";
-$dbname     = "eficientparkinglot";
-
-$conn = new mysqli($servername, $username, $passwordDB, $dbname);
-
-if ($conn->connect_error) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Error de conexión"
-    ]);
-    exit;
-}
+include "conexion.php";
 
 /* =========================
    Recibir datos
